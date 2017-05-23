@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Built-By: Alexander Kucherov
+Build-Jdk: 1.7
+Created-By: Apache Maven 3.3.9
+Main-Class: Main
+Archiver-Version: Plexus Archiver
+
