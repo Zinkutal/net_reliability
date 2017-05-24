@@ -6,16 +6,20 @@ import com.graph.Generate;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 
+import java.awt.*;
+
 public class Main {
 
     public static void main(String[] args) throws Exception {
         Generate gen = new Generate();
         View view = new View();
-        //view.graph(gen.getGraphInput());
-        Graph graph = view.graph(gen.getGraphInput());
+        view.graph(gen.getGraphInput());
+
+        //Graph graph = view.graph(gen.getGraphInput());
 
         Accurate accurate = new Accurate();
         accurate.graph_init(gen.getGraphInput());
+
         //accurate.getCover(gen.getGraphInput());
 
 
