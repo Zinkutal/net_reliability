@@ -31,7 +31,6 @@ public class Accurate {
     }
 
 
-
     private ArrayList<Integer> checkedNodes =new ArrayList<>();
 
     static private int stockId;
@@ -133,41 +132,10 @@ public class Accurate {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         View view = new View();
         view.graph(gen != null ? gen.getGraphInput() : null, vertexes);
 
         return view.getPixels()/1000;
     }
-
-    /*private void rel(Graph_input graph){
-        if (nodesId[0] == nodesId[2]) {
-            System.out.println(" <--- Loop (The END)---> ");
-            log2File("\n <--- Loop (The END)---> ");
-        } else {
-
-                        System.out.println(getCoverage());
-                        log2File("\n" + getCoverage());
-                        checkedNodes.add(nodesId[1]);
-                        nodesId[2] = nodesId[0];
-                        nodesId[0] = nodesId[1];
-                    }
-                }
-            }
-
-            System.out.println("Array : ");
-            log2File("\nArray : ");
-            System.out.print("| ");
-            log2File("| ");
-            for (Integer check : checkedNodes) {
-                System.out.print(check + " | ");
-                log2File(check + " | ");
-            }
-            System.out.println("");
-            log2File("\n");
-            nodesId[0] = getStockId();
-            rel(graph);
-        }
-    }*/
 
 }

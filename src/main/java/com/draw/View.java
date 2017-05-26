@@ -98,41 +98,46 @@ public class View {
         graph_new.setAutoCreate( true );
         View.EDGE_COUNTER=0;
 
-        FileSinkImages pic = new FileSinkImages(FileSinkImages.OutputType.PNG, FileSinkImages.Resolutions.UHD_8K_17by8);
+        FileSinkImages pic = new FileSinkImages(FileSinkImages.OutputType.PNG, FileSinkImages.Resolutions.HD1080);
         pic.setLayoutPolicy(FileSinkImages.LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
 
+        for (int id=0; id < vertexes.length; id++){
+         if (vertexes[id] == 2){
+             //graph_new.display(false);
+             styleSheet += style_old;
+             graph_new.addNode(String.valueOf(graph.getNodes().get(id).getId()));
+             Node n = graph_new.getNode(String.valueOf(graph.getNodes().get(id).getId()));
+             for (int var=0; var < vertexes.length; var++){
+                 if (graph.getNodes().get(id).getRelations().contains(var)){
+                     n.setAttribute(
+                             "xyz",
+                             graph.getNodes().get(id).getCoordinates().get(0) - graph.getNodes().get(id).getCoverage()/2,
+                             graph.getNodes().get(id).getCoordinates().get(1) - graph.getNodes().get(id).getCoverage()/2,
+                             0
+                     );
+                     n.setAttribute("ui.label", String.valueOf(graph.getNodes().get(id).getId()));
+                     styleSheet += "node#" +
+                             String.valueOf(graph.getNodes().get(id).getId()) +
+                             " { size: "+ graph.getNodes().get(id).getCoverage() +" ; }";
+                     if(graph.getNodes().get(id).getStock()){
+                         n.setAttribute("ui.class", "marked");
+                     }
+                     graph_new.addAttribute("ui.stylesheet", styleSheet);
+                     //graph_new.addAttribute("ui.screenshot", IMAGE_PATH);
+                     try {
+                         pic.writeAll(graph_new, IMAGE_PATH);
+                     } catch (IOException e) {
+                         e.printStackTrace();
+                     }
+                     setPixels(this.countPixels());
+                 }
+             }
 
 
-        for (int i=0; i< graph.getNodes().size();i++){
-            //graph_new.display(false);
-            styleSheet += style_old;
-            graph_new.addNode(String.valueOf(graph.getNodes().get(i).getId()));
-            Node n = graph_new.getNode(String.valueOf(graph.getNodes().get(i).getId()));
-            n.setAttribute(
-                    "xyz",
-                    graph.getNodes().get(i).getCoordinates().get(0) - graph.getNodes().get(i).getCoverage()/2,
-                    graph.getNodes().get(i).getCoordinates().get(1) - graph.getNodes().get(i).getCoverage()/2,
-                    0
-            );
-            n.setAttribute("ui.label", String.valueOf(graph.getNodes().get(i).getId()));
-            styleSheet += "node#" +
-                    String.valueOf(graph.getNodes().get(i).getId()) +
-                    " { size: "+ graph.getNodes().get(i).getCoverage() +" ; }";
-            if(graph.getNodes().get(i).getStock()){
-                n.setAttribute("ui.class", "marked");
-            }
-            graph_new.addAttribute("ui.stylesheet", styleSheet);
-            //graph_new.addAttribute("ui.screenshot", IMAGE_PATH);
-            try {
-                pic.writeAll(graph_new, IMAGE_PATH);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            setPixels(this.countPixels());
+         }
         }
 
-
-        for (int i=0; i< graph.getNodes().size();i++){
+        /*for (int i=0; i< graph.getNodes().size();i++){
             for (int j=0; j<graph.getNodes().get(i).getRelations().size();j++){
                 graph_new.addEdge(
                         String.valueOf(View.EDGE_COUNTER),
@@ -141,7 +146,7 @@ public class View {
                 );
                 View.EDGE_COUNTER++;
             }
-        }
+        }*/
 
         return graph_new;
     }
