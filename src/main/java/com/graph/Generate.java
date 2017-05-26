@@ -11,9 +11,11 @@ public class Generate {
 
     private Graph_input graphInput;
 
+    private String jsonSource = "src/data/input/json/graph_input.json";
+
     public Generate () throws IOException {
 
-        String rjson = new ReadJSON().getJSON();
+        String rjson = new ReadJSON().getJSON(jsonSource);
         this.graphInput = new Gson().fromJson(rjson, Graph_input.class);
 
     }

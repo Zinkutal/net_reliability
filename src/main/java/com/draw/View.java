@@ -1,9 +1,12 @@
 package com.draw;
 
+import com.algorythm.Accurate;
+import com.graph.Generate;
 import com.graph.Graph_input;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.stream.file.FileSinkImages;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -21,37 +24,51 @@ public class View {
     
     private final String IMAGE_PATH = "src/data/graph_image.png";
 
-    public int countPixels(){
+    private int max_pixels;
 
+    private void setMaxPixels(int max_pixels) {
+        this.max_pixels = max_pixels;
+    }
+
+    public int getMaxPixels(){
+        return this.max_pixels;
+    }
+
+    private int pixels;
+
+    private void setPixels(int pixels) {
+        this.pixels = pixels;
+    }
+
+    public int getPixels(){
+        return this.pixels;
+    }
+
+    private int countPixels(){
         BufferedImage image;
         int count = 0;
-        int image_size = 0;
 
         try {
             File pathToFile = new File(this.IMAGE_PATH);
             image = ImageIO.read(pathToFile);
-            try {
-                image_size = image.getWidth() * image.getHeight();
-                for (int i = 0; i < image.getWidth(); i++)
-                    for (int j = 0; j < image.getHeight(); j++) {
-                        Color c = new Color(image.getRGB(i, j));
-                        if (!c.equals(Color.WHITE))
-                            count++;
-                    }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            setMaxPixels(image.getWidth() * image.getHeight());
 
-        } catch (IOException ex) {
+            for (int i = 0; i < image.getWidth(); i++)
+                for (int j = 0; j < image.getHeight(); j++) {
+                    Color c = new Color(image.getRGB(i, j));
+                    if (!c.equals(Color.WHITE))
+                        count++;
+                }
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        System.out.println("Amount of all pixels: " + image_size);
+        //System.out.println("Amount of all pixels: " + getMaxPixels());
         System.out.println("Amount of coloured pixels: " + count);
         return count;
     }
 
-    public Graph graph(Graph_input graph){
+    public Graph graph(Graph_input graph, int[] vertexes){
         String styleSheet =
                 "node { " +
                         "size: 10px; " +
@@ -74,15 +91,20 @@ public class View {
         Graph graph_new = new MultiGraph(
                 graph.getInfo().getName() + " by " + graph.getInfo().getAuthor()
         );
+
         graph_new.addAttribute("ui.quality");
         graph_new.addAttribute("ui.antialias");
         graph_new.setStrict(true);
         graph_new.setAutoCreate( true );
         View.EDGE_COUNTER=0;
 
+        FileSinkImages pic = new FileSinkImages(FileSinkImages.OutputType.PNG, FileSinkImages.Resolutions.UHD_8K_17by8);
+        pic.setLayoutPolicy(FileSinkImages.LayoutPolicy.COMPUTED_FULLY_AT_NEW_IMAGE);
+
+
 
         for (int i=0; i< graph.getNodes().size();i++){
-
+            //graph_new.display(false);
             styleSheet += style_old;
             graph_new.addNode(String.valueOf(graph.getNodes().get(i).getId()));
             Node n = graph_new.getNode(String.valueOf(graph.getNodes().get(i).getId()));
@@ -99,18 +121,14 @@ public class View {
             if(graph.getNodes().get(i).getStock()){
                 n.setAttribute("ui.class", "marked");
             }
-
-            //styleSheet = style_old + styleSheet;
-            graph_new.display(false);
             graph_new.addAttribute("ui.stylesheet", styleSheet);
-            graph_new.addAttribute("ui.screenshot", IMAGE_PATH);
-
-            try{
-                this.countPixels();
-                //if (this.countPixels() > 0) graph_new.clearAttributes();
-            }catch(Exception e){
+            //graph_new.addAttribute("ui.screenshot", IMAGE_PATH);
+            try {
+                pic.writeAll(graph_new, IMAGE_PATH);
+            } catch (IOException e) {
                 e.printStackTrace();
             }
+            setPixels(this.countPixels());
         }
 
 
@@ -121,23 +139,11 @@ public class View {
                         String.valueOf(graph.getNodes().get(i).getId()),
                         String.valueOf(graph.getNodes().get(i).getRelations().get(j))
                 );
-
                 View.EDGE_COUNTER++;
             }
-
         }
 
         return graph_new;
     }
-
-
-
-
-
-
-
-
-
-
 
 }

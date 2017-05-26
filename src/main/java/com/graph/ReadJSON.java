@@ -11,9 +11,9 @@ import java.io.IOException;
 public class ReadJSON {
     private String json;
 
-    public String getJSON() throws IOException {
+    public String getJSON(String source) throws IOException {
 
-        try(BufferedReader br = new BufferedReader(new FileReader("src/data/graph_input.json"))) {
+        try(BufferedReader br = new BufferedReader(new FileReader(source))) {
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
 

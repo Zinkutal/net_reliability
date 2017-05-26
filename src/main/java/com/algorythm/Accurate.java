@@ -1,10 +1,13 @@
 package com.algorythm;
 
 import com.draw.View;
+import com.graph.Generate;
 import com.graph.Graph_input;
 
 import java.io.*;
+import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -42,6 +45,8 @@ public class Accurate {
     static private int[] nodesId = new int[3];
     static private int[] vertexes = new int[3];
 
+    static private String logPath = "src/data/output/log_" + Clock.systemDefaultZone().instant().toString().replaceAll(":", "-") + ".txt";
+
     public void graph_init(Graph_input graph){
         for (int i=0; i < graph.getNodes().size(); i++){
             if(graph.getNodes().get(i).getStock() == Boolean.TRUE){
@@ -60,8 +65,11 @@ public class Accurate {
             );*/
             //checkedNodes.add(nodesId[0]);
             //rel(graph);
-            stockId = getStockId();
-            factoring(graph, vertexes);
+            vertexes = Arrays.copyOf(vertexes, graph.getNodes().size());
+            Arrays.fill(vertexes, 1);
+            stockId  = getStockId();
+
+            System.out.println(" <--- Square coverage ---> " + factoring(graph, vertexes));
         } else {
             System.out.println(" <--- Loop (The END)---> ");
             log2File("\n <--- Loop (The END)---> ");
@@ -70,13 +78,12 @@ public class Accurate {
     }
 
     private void log2File(String str){
-        String savestr = "src/data/log.txt";
-        File f = new File(savestr);
+        File f = new File(logPath);
 
         PrintWriter out = null;
         if ( f.exists() && !f.isDirectory() ) {
             try {
-                out = new PrintWriter(new FileOutputStream(new File(savestr), true));
+                out = new PrintWriter(new FileOutputStream(new File(logPath), true));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -84,7 +91,7 @@ public class Accurate {
             out.close();
         } else {
             try {
-                out = new PrintWriter(savestr);
+                out = new PrintWriter(logPath);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -95,30 +102,42 @@ public class Accurate {
 
 
     private double factoring (Graph_input graph, int[] vertexes){
-        if ((vertexes[stockId] != 0) || (vertexes[stockId] != 1)){
-                if(stockId < graph.getNodes().size()){
-                    return calculateCoverage(vertexes);
-                } else {
-                    stockId++;
-                    System.out.println(" <--- Branch Loop (The END)---> ");
-                    log2File("\n <--- Branch Loop (The END)---> ");
-                    return calculateCoverage(vertexes);
+        int vId = stockId;
+        //checkedNodes[]
+        if ((vertexes[vId] > 0) || (vertexes[vId] < 2)){
+            for (int i = 0; i < graph.getNodes().get(vId).getRelations().size(); i++) {
+                if (!checkedNodes.contains(graph.getNodes().get(vId).getRelations().get(i))) {
+                    vId = graph.getNodes().get(vId).getRelations().get(i);
+                    break;
                 }
+            }
+
+            calculateCoverage(vertexes);
+            System.out.println(" <--- Branch Loop (The END)---> ");
+            log2File("\n <--- Branch Loop (The END)---> ");
+
         } else {
-            vertexes[stockId] = 1;
-            setReliability(graph.getNodes().get(vertexes[stockId]).getReliability() * factoring(graph,vertexes));
-            vertexes[stockId] = 0;
-            setReliability(getReliability() + (1 - graph.getNodes().get(vertexes[stockId]).getReliability()) * factoring(graph,vertexes));
+            vertexes[vId] = 2;
+            setReliability(graph.getNodes().get(vertexes[vId]).getReliability() * factoring(graph,vertexes));
+            vertexes[vId] = 0;
+            setReliability(getReliability() + (1 - graph.getNodes().get(vertexes[vId]).getReliability()) * factoring(graph,vertexes));
         }
 
         return calculateCoverage(vertexes);
     }
 
     private double calculateCoverage(int[] vertexes){
-        //View view = new View();
-        //view.countPixels(vertexes);
+        Generate gen = null;
+        try {
+            gen = new Generate();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        return 0.44 * Math.random();
+        View view = new View();
+        view.graph(gen != null ? gen.getGraphInput() : null, vertexes);
+
+        return view.getPixels()/1000;
     }
 
     /*private void rel(Graph_input graph){
@@ -126,14 +145,7 @@ public class Accurate {
             System.out.println(" <--- Loop (The END)---> ");
             log2File("\n <--- Loop (The END)---> ");
         } else {
-            for (int i = 0; i < graph.getNodes().get(nodesId[0]).getRelations().size(); i++) {
-                if (!checkedNodes.contains(graph.getNodes().get(nodesId[0]).getRelations().get(i))) {
-                    nodesId[1] = graph.getNodes().get(nodesId[0]).getRelations().get(i);
-                    if (graph.getNodes().get(nodesId[1]).getReliability() > 0) {
-                        setCoverage(getCoverage() +
-                                graph.getNodes().get(nodesId[1]).getReliability() *
-                                        graph.getNodes().get(nodesId[1]).getCoverage()
-                        );
+
                         System.out.println(getCoverage());
                         log2File("\n" + getCoverage());
                         checkedNodes.add(nodesId[1]);
