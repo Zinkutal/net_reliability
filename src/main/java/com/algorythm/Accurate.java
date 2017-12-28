@@ -8,7 +8,7 @@ import java.io.*;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
+
 
 /**
  * Created by aleksandrkucherov on 12/16/16.
@@ -101,6 +101,9 @@ public class Accurate {
 
 
     private double factoring (Graph_input graph, int[] vertexes){
+        for (int vertex : vertexes) {
+            checkedNodes.add(vertex);
+        }
         int vId = stockId;
         //checkedNodes[]
         if ((vertexes[vId] > 0) || (vertexes[vId] < 2)){
@@ -114,6 +117,7 @@ public class Accurate {
             calculateCoverage(vertexes);
             System.out.println(" <--- Branch Loop (The END)---> ");
             log2File("\n <--- Branch Loop (The END)---> ");
+            //factoring(graph, vertexes);
 
         } else {
             vertexes[vId] = 2;
@@ -133,7 +137,8 @@ public class Accurate {
             e.printStackTrace();
         }
         View view = new View();
-        view.graph(gen != null ? gen.getGraphInput() : null, vertexes);
+        int[] Arr = {2,2,2,2,2};
+        view.graph(gen != null ? gen.getGraphInput() : null, Arr);
 
         return view.getPixels()/1000;
     }

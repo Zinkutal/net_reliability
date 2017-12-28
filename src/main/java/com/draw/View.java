@@ -132,8 +132,6 @@ public class View {
                      setPixels(this.countPixels());
                  }
              }
-
-
          }
         }
 
